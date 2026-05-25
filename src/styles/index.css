@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================================
+ * Operator HUD — global tokens & primitives
+ * Aesthetic: tactical sci-fi, monospaced telemetry, corner-bracket frames
+ * =========================================================== */
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --hud-accent: 255 106 53; /* rgb triplet so we can compose alpha */
+    --hud-grid: 30 39 49;
+    --hud-cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><g fill='none' stroke='%23ff6a35' stroke-width='1.5'><circle cx='14' cy='14' r='8'/><line x1='14' y1='0' x2='14' y2='6'/><line x1='14' y1='22' x2='14' y2='28'/><line x1='0' y1='14' x2='6' y2='14'/><line x1='22' y1='14' x2='28' y2='14'/><circle cx='14' cy='14' r='1.5' fill='%23ff6a35'/></g></svg>") 14 14, crosshair;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-hud-bg text-hud-text font-body antialiased;
+    background-image:
+      radial-gradient(ellipse at top, rgba(255, 106, 53, 0.07), transparent 55%),
+      radial-gradient(ellipse at bottom right, rgba(98, 168, 255, 0.04), transparent 60%),
+      linear-gradient(rgba(30, 39, 49, 0.35) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(30, 39, 49, 0.35) 1px, transparent 1px);
+    background-size:
+      auto,
+      auto,
+      32px 32px,
+      32px 32px;
+    overflow-x: hidden;
+    cursor: var(--hud-cursor);
+  }
+
+  button,
+  a {
+    cursor: var(--hud-cursor);
+  }
+
+  ::selection {
+    background: rgba(255, 106, 53, 0.4);
+    color: #fff;
+  }
+
+  /* Subtle screen vignette */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 55%,
+      rgba(0, 0, 0, 0.55) 100%
+    );
+    z-index: 60;
+  }
+
+  /* Screen flicker / CRT-ish overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.012) 0px,
+      rgba(255, 255, 255, 0.012) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    z-index: 61;
+    mix-blend-mode: overlay;
+  }
+}
+
+@layer components {
+  /* Reusable HUD panel surface */
+  .hud-panel {
+    @apply relative bg-hud-panel/80 backdrop-blur-[2px] border border-hud-ink shadow-hud-inner;
+  }
+
+  /* Tiny telemetry tag */
+  .hud-tag {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-hud
+      text-hud-dim border border-hud-ink bg-hud-bg/40;
+  }
+
+  /* Section title chrome */
+  .hud-title {
+    @apply font-display uppercase tracking-hud text-hud-text;
+  }
+
+  /* "Glassy" frosted panel for highlighted blocks */
+  .hud-frosted {
+    background:
+      linear-gradient(180deg, rgba(255, 106, 53, 0.04), transparent 35%),
+      rgba(17, 21, 27, 0.85);
+  }
+
+  /* Diagonal hatch fill for "locked" tiles */
+  .hud-hatch {
+    background-image: repeating-linear-gradient(
+      135deg,
+      rgba(255, 106, 53, 0.08) 0,
+      rgba(255, 106, 53, 0.08) 2px,
+      transparent 2px,
+      transparent 8px
+    );
+  }
+}
+
+@layer utilities {
+  /* Aggressive caret-blink for terminal text */
+  .caret::after {
+    content: '▌';
+    margin-left: 2px;
+    color: rgb(var(--hud-accent));
+    animation: caret-blink 1.05s steps(1, end) infinite;
+  }
+
+  @keyframes caret-blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .text-shadow-glow {
+    text-shadow: 0 0 8px rgba(255, 106, 53, 0.55);
+  }
+
+  /* Custom thin scrollbars where overflow exists */
+  .hud-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .hud-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .hud-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 106, 53, 0.4);
+    border-radius: 0;
+  }
+}
+
+/* Reduced-motion respect */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
